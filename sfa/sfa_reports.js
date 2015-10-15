@@ -17,11 +17,11 @@ module.exports ={
 
 
 var Territories = [
-      //{"Territories": "B14", "Level": "Salon - Sales Office"},
-      //{"Territories": "113", "Level": "Salon - Sales Group"}
-      {"Territories": "B06", "Level": "Salon - Sales Office"},
+      {"Territories": "B14", "Level": "Salon - Sales Office"},
+      {"Territories": "113", "Level": "Salon - Sales Group"}
+      //{"Territories": "B06", "Level": "Salon - Sales Office"},
       /*{"Territories": "904", "Level": "Salon - Sales Group"},*/
-      {"Territories": "904", "Level": "Salon - Sales Group"}
+      //{"Territories": "904", "Level": "Salon - Sales Group"}
       /*{"Territories": "300", "Level": "Salon - Sales Group"},
       {"Territories": "200", "Level": "Salon - Sales Group"}*/
     ];
@@ -60,6 +60,9 @@ function respond(outbound,reply) {
       
 }
 
+//var fields = ['DT_CUSTOMER', 'DT_SUBBRAND', 'DT_SALES_GROUP','DT_SALES_OFFICE', 'DT_MATERIAL','DT_BRAND','DT_QTY','DT_UOM','DT_SUBBRAND_DSCRPT','DT_MATERIAL_DSCRPT','DT_QTY_YTD',//'DT_QTY_YTD','DT_QTY_PYTD','DT_QTY_DIFF','DT_QTY_PY','DT_QTY_BTS','DT_IS_YTD','DT_IS_PYTD','DT_IS_DIFF','DT_IS_PY','DT_IS_BTS','DT_CALDAY','DT_GLOBAL_NETSALES_LC','DT_LOC_CURRCY'];
+
+var fields = ['CUST', 'SUBB', 'SGRP','SOFF', 'MATL','BRAND','QTY','UOM','SUBB_DSC','MAT_DSC','QTYYTD','QTYYTD','QTYPYTD','QTYDIFF','QTYPY','QTYBTS','ISYTD','ISPYTD','ISDIFF','ISPY','ISBTS','CALDAY','GLBNSALESLC','LOCCUR'];
 
 function getSalesHistory(request,reply) {
     
@@ -125,10 +128,28 @@ function getSalesHistory(request,reply) {
                   callback(err);
                 }
               
-                console.log(result);
-                outbound.SALES_HISTORY.push(result);
+                console.log(result.RESPONSE);
+                
+                console.log(request.headers);
+                //outbound.SALES_HISTORY.push(result);
                 //csv conversion here
-                cache.put(territoryKey,result,600);
+                if(request.headers["content-type"]=="text/csv") {
+                  console.log('csv requested');
+                  json2csv({ data: result.RESPONSE.TERR.SALES_DETAIL, fields: fields }, function(err, csv) {
+                    if (err) console.log(err);
+                    
+                    console.log(csv);
+                    cache.put(territoryKey,csv,600);
+                    outbound.SALES_HISTORY.push(csv);
+                    
+                  });
+                  
+                  
+                }
+                else{
+                  outbound.SALES_HISTORY.push(result);
+                }
+                //cache.put(territoryKey,result,600);
                 console.log("==============================================");
                 callback();
               });    
@@ -148,7 +169,23 @@ function getSalesHistory(request,reply) {
           }
           //reply.set({'Content-Type':'application/json'})
           //ensure any csv vs json conversion done here
-          reply.end(JSON.stringify(outbound))
+          
+          if(request.headers["content-type"]=="text/csv") {
+                  console.log('csv requested');
+                  reply.set({'Content-Type':'text/csv'})
+                  reply.end(outbound.SALES_HISTORY[0])
+            /*json2csv({ data: outbound.SALES_HISTORY[0], fields: fields }, function(err, csv) {
+              if (err) console.log(err);
+              reply.set({'Content-Type':'text/csv'})      
+              reply.end(csv)        
+                    
+            });*/
+          }
+          else{
+            reply.end(JSON.stringify(outbound))  
+          }
+          
+          
           //respond(outbound,reply);
         });
         
@@ -168,7 +205,7 @@ function getSalesHistoryDummyCSV(request,response) {
     
     var csvData = dummyData.SALES_HISTORY[0].RESPONSE.SALES_DETAIL;
      
-     var fields = ['DT_CUSTOMER', 'DT_SUBBRAND', 'DT_SALES_GROUP','DT_SALES_OFFICE', 'DT_MATERIAL','DT_BRAND','DT_QTY','DT_UOM','DT_SUBBRAND_DSCRPT','DT_MATERIAL_DSCRPT','DT_QTY_YTD','DT_QTY_YTD','DT_QTY_PYTD','DT_QTY_DIFF','DT_QTY_PY','DT_QTY_BTS','DT_IS_YTD','DT_IS_PYTD','DT_IS_DIFF','DT_IS_PY','DT_IS_BTS','DT_CALDAY','DT_GLOBAL_NETSALES_LC','DT_LOC_CURRCY'];
+     
  
     json2csv({ data: csvData, fields: fields }, function(err, csv) {
       if (err) console.log(err);
