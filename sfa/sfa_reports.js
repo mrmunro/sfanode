@@ -70,6 +70,8 @@ function getSalesHistory(request,reply) {
     
     
     var serviceURL = 'https://api-dev.kaokonnections.com' + apigee.getVariable(request,'salesHistoryServiceURL');
+    var salesHistoryFields = apigee.getVariable(request,'salesHistoryFields');
+    var salesHistoryFieldsTarget = apigee.getVariable(request,'salesHistoryFieldsTarget');
     
     console.log('main body');
     
@@ -137,7 +139,7 @@ function getSalesHistory(request,reply) {
                 //csv conversion here
                 if(request.headers["content-type"]=="text/csv") {
                   console.log('csv requested');
-                  json2csv({ data: result.RESPONSE.TERR.SALES_DETAIL, fields: fields }, function(err, csv) {
+                  json2csv({ data: result.RESPONSE.TERR.SALES_DETAIL, fields: salesHistoryFields }, function(err, csv) {
                     if (err) console.log(err);
                     
                     console.log(csv);
