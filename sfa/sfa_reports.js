@@ -29,6 +29,8 @@ var Territories = [
     
 var url = "SI_APIGEE_BI_SALES_HIST_DET_I.wsdl";
 var inbound = { 'TERRITORY':{'DT_SALES_OFFICE': '', 'DT_SALES_GROUP': ''}};
+
+
   
 
 var outbound = {'SALES_HISTORY':[]};
@@ -67,18 +69,18 @@ var fields = ['CUST', 'SUBB', 'SGRP','SOFF', 'MATL','BRAND','QTY','UOM','SUBB_DS
 function getSalesHistory(request,reply) {
     
     
-    
+    var serviceURL = 'https://api-dev.kaokonnections.com' + apigee.getVariable(request,'salesHistoryServiceURL');
     
     console.log('main body');
     
-  
+  //'https://api-dev.kaokonnections.com/XISOAPAdapter/MessageServlet?senderParty=&senderService=BS_APIGEE&receiverParty=&receiverService=&interface=SI_APIGEE_BI_SALES_HIST_DET_I&//interfaceNamespace=APIGEE_BI_SALES_HISTORY_DETAIL'
     
       //loop
       //for each territory
       //strip out the SAP territory ID
       //make call to PI/BI for data
       //Add response to final response
-      soap.createClient(url,{endpoint: 'https://api-dev.kaokonnections.com/XISOAPAdapter/MessageServlet?senderParty=&senderService=BS_APIGEE&receiverParty=&receiverService=&interface=SI_APIGEE_BI_SALES_HIST_DET_I&interfaceNamespace=APIGEE_BI_SALES_HISTORY_DETAIL'}, function(err,client) {
+      soap.createClient(url,{endpoint: serviceURL}, function(err,client) {
         if(err) {
           console.log(err);
             var error = Boom.badRequest('Internal Error: Cannot connect to SOAP target');
