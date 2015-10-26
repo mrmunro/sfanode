@@ -66,14 +66,33 @@ function respond(outbound,reply) {
 
 var fields = ['CUST', 'SUBB', 'SGRP','SOFF', 'MATL','BRAND','QTY','UOM','SUBB_DSC','MAT_DSC','QTYYTD','QTYYTD','QTYPYTD','QTYDIFF','QTYPY','QTYBTS','ISYTD','ISPYTD','ISDIFF','ISPY','ISBTS','CALDAY','GLBNSALESLC','LOCCUR'];
 
+var targetFields = ['CUST', 'SUBB', 'SGRP','SOFF', 'MATL','BRAND','QTY','UOM','SUBB_DSC','MAT_DSC','QTYYTD','QTYYTD','QTYPYTD','QTYDIFF','QTYPY','QTYBTS','ISYTD','ISPYTD','ISDIFF','ISPY','ISBTS','CALDAY','GLBNSALESLC','LOCCUR'];
+
 function getSalesHistory(request,reply) {
     
     
-    var serviceURL = 'https://api-dev.kaokonnections.com' + apigee.getVariable(request,'salesHistoryServiceURL');
+    //var serviceURL = 'https://api-dev.kaokonnections.com' + apigee.getVariable(request,'salesHistoryServiceURL');
+    var serviceURL = 'https://api-qa.kaokonnections.com' + apigee.getVariable(request,'salesHistoryServiceURL');
+    
     var salesHistoryFields = apigee.getVariable(request,'salesHistoryFields');
     var salesHistoryFieldsTarget = apigee.getVariable(request,'salesHistoryFieldsTarget');
     
+    console.log(salesHistoryFields)
+    console.log('target: ' + salesHistoryFieldsTarget)
+    fields = salesHistoryFields.split(',')
+    targetFields = salesHistoryFieldsTarget.split(',')
+    
+    
     console.log('main body');
+    
+    console.log('mode: ' + apigee.getMode());
+        
+        var cache = apigee.getCache('SFA2_SalesHistoryCache2',{
+          resource: 'SFA2_SalesCacheHistory',
+          scope: 'global',
+          defaultTtl: 30
+        });
+        var territoryKey = '';
     
   //'https://api-dev.kaokonnections.com/XISOAPAdapter/MessageServlet?senderParty=&senderService=BS_APIGEE&receiverParty=&receiverService=&interface=SI_APIGEE_BI_SALES_HIST_DET_I&//interfaceNamespace=APIGEE_BI_SALES_HISTORY_DETAIL'
     
@@ -90,17 +109,10 @@ function getSalesHistory(request,reply) {
             error.reformat();
           reply.end(JSON.stringify(error));
         }
-        client.setSecurity(new soap.BasicAuthSecurity('SOAP_APIGEE','test.apigee'));
+        client.setSecurity(new soap.BasicAuthSecurity('SOAP_APIGEE','test1.apigee'));
         
         
-        console.log('mode: ' + apigee.getMode());
         
-        var cache = apigee.getCache('SFA2_SalesHistoryCache2',{
-          resource: 'SFA2_SalesCacheHistory',
-          scope: 'global',
-          defaultTtl: 30
-        });
-        var territoryKey = '';
 
         
         //
@@ -139,7 +151,7 @@ function getSalesHistory(request,reply) {
                 //csv conversion here
                 if(request.headers["content-type"]=="text/csv") {
                   console.log('csv requested');
-                  json2csv({ data: result.RESPONSE.TERR.SALES_DETAIL, fields: salesHistoryFields }, function(err, csv) {
+                  json2csv({ data: result.RESPONSE.TERR.SALES_DETAIL, fields: fields, fieldNames: targetFields }, function(err, csv) {
                     if (err) console.log(err);
                     
                     console.log(csv);

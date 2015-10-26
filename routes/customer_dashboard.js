@@ -2,7 +2,9 @@ var express = require('express')
 var sfa_reports = require('../sfa/sfa_reports.js')
 
 
+
 function salesHistoryDummyCSV(req,res){
+	req.set
 	sfa_reports.getSalesHistoryDummyCSV(req,res)
 }
 
