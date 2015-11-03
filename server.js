@@ -1,5 +1,5 @@
 var express = require('express')
-var customerDashboard = require('./routes/customer_dashboard.js')
+var customerDashboard = require('./customer_dashboard.js')
 var compress = require('compression')
 
 

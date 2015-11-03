@@ -71,16 +71,29 @@ var targetFields = ['CUST', 'SUBB', 'SGRP','SOFF', 'MATL','BRAND','QTY','UOM','S
 function getSalesHistory(request,reply) {
     
     
-    //var serviceURL = 'https://api-dev.kaokonnections.com' + apigee.getVariable(request,'salesHistoryServiceURL');
-    var serviceURL = 'https://api-qa.kaokonnections.com' + apigee.getVariable(request,'salesHistoryServiceURL');
+    var pathToService = apigee.getVariable(request,'salesHistoryServiceURL');
+    if(!pathToService){
+      pathToService = '/XISOAPAdapter/MessageServlet?senderParty=&senderService=BS_APIGEE&receiverParty=&receiverService=&interface=SI_APIGEE_BI_SALES_HIST_DET_I&interfaceNamespace=APIGEE_BI_SALES_HISTORY_DETAIL';
+    }
+    
+    //var serviceURL = 'https://api-dev.kaokonnections.com' + pathToService
+    var serviceURL = 'https://s61us01ap152d.aemea.kao.com:50001' + pathToService
+    //var serviceURL = 'https://api-qa.kaokonnections.com' + apigee.getVariable(request,'salesHistoryServiceURL');
+    
     
     var salesHistoryFields = apigee.getVariable(request,'salesHistoryFields');
     var salesHistoryFieldsTarget = apigee.getVariable(request,'salesHistoryFieldsTarget');
     
-    console.log(salesHistoryFields)
-    console.log('target: ' + salesHistoryFieldsTarget)
-    fields = salesHistoryFields.split(',')
-    targetFields = salesHistoryFieldsTarget.split(',')
+    if(salesHistoryFields) {
+      console.log(salesHistoryFields)    
+      fields = salesHistoryFields.split(',')  
+    }
+    
+    if(salesHistoryFieldsTarget) {
+      console.log('target: ' + salesHistoryFieldsTarget)
+      targetFields = salesHistoryFieldsTarget.split(',')  
+    }
+    
     
     
     console.log('main body');
@@ -109,7 +122,7 @@ function getSalesHistory(request,reply) {
             error.reformat();
           reply.end(JSON.stringify(error));
         }
-        client.setSecurity(new soap.BasicAuthSecurity('SOAP_APIGEE','test1.apigee'));
+        client.setSecurity(new soap.BasicAuthSecurity('SOAP_APIGEE','test.apigee')); //test1.apigee for qa
         
         
         
@@ -188,7 +201,7 @@ function getSalesHistory(request,reply) {
           
           if(request.headers["content-type"]=="text/csv") {
                   console.log('csv requested');
-                  reply.set({'Content-Type':'text/csv'})
+                 // reply.set({'Content-Type':'text/csv'})
                   reply.end(outbound.SALES_HISTORY[0])
             /*json2csv({ data: outbound.SALES_HISTORY[0], fields: fields }, function(err, csv) {
               if (err) console.log(err);

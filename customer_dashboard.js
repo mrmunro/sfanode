@@ -1,5 +1,5 @@
 var express = require('express')
-var sfa_reports = require('../sfa/sfa_reports.js')
+var sfa_reports = require('./sfa/sfa_reports.js')
 
 
 
