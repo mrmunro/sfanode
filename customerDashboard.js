@@ -4,6 +4,7 @@ var apigee = require('apigee-access')
 
 
 var salesHistoryConfig = require('./salesHistoryConfig.js')
+var customerDashConfig = require('./customerDashConfig.js')
 
 var serviceURL = '';
 var soapClient
@@ -52,7 +53,17 @@ function salesHistory(req,res){
 }
 
 
+function getDashboard(req,res){
+    
+    
+    var parameters = customerDashConfig.setupDashboard(req)
+    parameters.territories = getTerritories(req)
+    
+    callTargetService(req,res, parameters, sfa_reports.getSalesData)
+}
+
 module.exports = {
 
-	salesHistory : salesHistory
+	salesHistory : salesHistory,
+    getDashboard : getDashboard
 }

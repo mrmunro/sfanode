@@ -9,6 +9,7 @@ var app = express()
 //app.use(compress())
 
 app.get('/customer_dashboard/report_sales_history',customerDashboard.salesHistory)
+app.get('/customer_dashboard',customerDashboard.getDashboard)
 app.get('/prepopulate', prepopulate.cache)
 
 
