@@ -25,9 +25,10 @@ var custDashboardTargetOperation = function(client,request,response,cache,parame
             parameters.json2csv({ data: result.RESPONSE.TERR[0].DASHB, fields: parameters.fields, fieldNames: parameters.targetFields, quotes: '', defaultValue: '' }, function(err, csv) {
             if (err) console.log(err);
             
-            console.log(csv);
-            cache.put(parameters.territoryKey,csv,600);
-            parameters.outbound.SALES_DATA.push(csv);
+            var res = csv.replace(/{}/g, "")
+            console.log(res);
+            cache.put(parameters.territoryKey,res,600);
+            parameters.outbound.SALES_DATA.push(res);
             
             });
             

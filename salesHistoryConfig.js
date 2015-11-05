@@ -1,6 +1,7 @@
 
 var apigee = require('apigee-access')
 var fs = require('fs')
+var Async = require('async')
 
 module.exports = {
 
@@ -16,9 +17,11 @@ var salesHistoryTargetOperation = function(client,request,response,cache,paramet
             callback(err);
         }
         
-        console.log(result.RESPONSE);
-        
+        console.log(result.RESPONSE.TERR.SALES_DETAIL.UOM);
         console.log(request.headers);
+        
+        
+        
         
         //csv conversion here
         if(request.headers["content-type"]=="text/csv") {
@@ -26,9 +29,10 @@ var salesHistoryTargetOperation = function(client,request,response,cache,paramet
             parameters.json2csv({ data: result.RESPONSE.TERR.SALES_DETAIL, fields: parameters.fields, fieldNames: parameters.targetFields, quotes: '', defaultValue: '' }, function(err, csv) {
             if (err) console.log(err);
             
-            console.log(csv);
-            cache.put(parameters.territoryKey,csv,600);
-            parameters.outbound.SALES_DATA.push(csv);
+            var res = csv.replace(/{}/g, "")
+            console.log(res);
+            cache.put(parameters.territoryKey,res,600);
+            parameters.outbound.SALES_DATA.push(res);
             
             });
             
