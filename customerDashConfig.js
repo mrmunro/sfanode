@@ -6,22 +6,37 @@ module.exports = {
 	setupDashboard : setupDashboard
 }
 
+var convertJSON2CSV = function(data, converter, request, fields, targetFields, csvDataOut) {
+        converter({ data: data.RESPONSE.TERR[0].DASHB, fields: fields, fieldNames: targetFields, quotes: '', defaultValue: '' }, function(err, csv) {
+        if (err) console.log(err);
+        
+        var res = csv.replace(/{}/g, "")
+        console.log(res);
+        csvDataOut.SALES_DATA.push(res);
+        
+        });
+    }
+
 var custDashboardTargetOperation = function(client,request,response,cache,parameters,callback) {
     
     client.SI_APIGEE_BI_CUSTOMER_DASHBOARD_I(parameters.inbound, function(err,result) {
         if(err) {
-            console.log(err);
-            fs.writeFileSync("err.log", err.body);
-            callback(err);
+            console.log(err)
+            fs.writeFileSync("err.log", err.body)
+            callback(err)
         }
         
-        //console.log(result.RESPONSE.TERR[0].DASHB);
+        
+        
         
         console.log(request.headers);
         
         //csv conversion here
         if(request.headers["content-type"]=="text/csv") {
             console.log('csv requested');
+            
+            
+            
             parameters.json2csv({ data: result.RESPONSE.TERR[0].DASHB, fields: parameters.fields, fieldNames: parameters.targetFields, quotes: '', defaultValue: '' }, function(err, csv) {
             if (err) console.log(err);
             
@@ -35,6 +50,7 @@ var custDashboardTargetOperation = function(client,request,response,cache,parame
             
         }
         else{
+            //cache.put(parameters.territoryKey,result,600);
             parameters.outbound.SALES_DATA.push(result);
         }
         
@@ -76,7 +92,8 @@ function setupDashboard(req) {
         'cache': {'name': 'SFA2_CustomerDashboardCache', 'resource' : 'SFA2_CustomerDashboardHistory','scope': 'global',
           'defaultTtl': 30},
         'cacheKeyPrefix': 'customerDashboard',
-        'clientOperation': custDashboardTargetOperation 
+        'clientOperation': custDashboardTargetOperation,
+        'csvConversion': convertJSON2CSV
     }
     
     return parameters

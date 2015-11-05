@@ -128,6 +128,7 @@ function getSalesData(request,response, client, parameters) {
             }
             if(data) {
               console.log('use cache target');
+              
               outbound.SALES_DATA.push(data);
               callback();
             }
@@ -156,6 +157,7 @@ function getSalesData(request,response, client, parameters) {
           if(request.headers["content-type"]=="text/csv") {
                   console.log('csv requested');
                   response.set({'Content-Type':'text/csv'})
+                  //parameters.csvConversion(outbound.SALES_DATA[0],parameters.json2csv,request,parameters.fields, parameters.targetFields, parameters.outbound)
                   response.end(outbound.SALES_DATA[0])
             
           }

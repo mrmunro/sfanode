@@ -8,6 +8,18 @@ module.exports = {
 	setupSalesHistory : setupSalesHistory
 }
 
+var convertJSON2CSV = function(data, converter, request, fields, targetFields, csvDataOut) {
+        converter({ data: data.RESPONSE.TERR.SALES_DETAIL, fields: fields, fieldNames: targetFields, quotes: '', defaultValue: '' }, function(err, csv) {
+        if (err) console.log(err);
+        
+        var res = csv.replace(/{}/g, "")
+        console.log(res);
+        csvDataOut.SALES_DATA.push(res);
+        
+        });
+    }
+
+
 var salesHistoryTargetOperation = function(client,request,response,cache,parameters,callback) {
     
     client.SI_APIGEE_BI_SALES_HIST_DET_I(parameters.inbound, function(err,result) {
@@ -17,8 +29,8 @@ var salesHistoryTargetOperation = function(client,request,response,cache,paramet
             callback(err);
         }
         
-        console.log(result.RESPONSE.TERR.SALES_DETAIL.UOM);
-        console.log(request.headers);
+        console.log(result)
+        console.log(request.headers)
         
         
         
@@ -26,6 +38,10 @@ var salesHistoryTargetOperation = function(client,request,response,cache,paramet
         //csv conversion here
         if(request.headers["content-type"]=="text/csv") {
             console.log('csv requested');
+            
+            
+            
+            
             parameters.json2csv({ data: result.RESPONSE.TERR.SALES_DETAIL, fields: parameters.fields, fieldNames: parameters.targetFields, quotes: '', defaultValue: '' }, function(err, csv) {
             if (err) console.log(err);
             
@@ -34,12 +50,15 @@ var salesHistoryTargetOperation = function(client,request,response,cache,paramet
             cache.put(parameters.territoryKey,res,600);
             parameters.outbound.SALES_DATA.push(res);
             
-            });
+            }) 
             
             
         }
         else{
+            
+            //cache.put(parameters.territoryKey,result,600);
             parameters.outbound.SALES_DATA.push(result);
+            
         }
         
         console.log("==============================================");
@@ -80,7 +99,8 @@ function setupSalesHistory(req) {
         'cache': {'name': 'SFA2_SalesHistoryCache2', 'resource' : 'SFA2_SalesCacheHistory','scope': 'global',
           'defaultTtl': 30},
         'cacheKeyPrefix': 'salesHistory',
-        'clientOperation': salesHistoryTargetOperation 
+        'clientOperation': salesHistoryTargetOperation,
+        'csvConversion': convertJSON2CSV 
     }
     
     return parameters
