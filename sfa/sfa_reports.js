@@ -24,7 +24,7 @@ function createSOAPClient(parameters,serviceURL, user, password, request,respons
           var error = Boom.badRequest('Internal Error: Cannot connect to SOAP target: ' + serviceURL);
           error.output.statusCode = 500;    // Assign a custom error code
           error.reformat();
-          response.end(JSON.stringify(error));
+          response.status(500).end(JSON.stringify(error));
         }
         client.setSecurity(new soap.BasicAuthSecurity(user,password)); //test1.apigee for qa
         
@@ -149,7 +149,7 @@ function getSalesData(request,response, client, parameters) {
               var error = Boom.badRequest('Internal Error: Failed to call SOAP target');
               error.output.statusCode = 500;    // Assign a custom error code
               error.reformat();
-              response.end(JSON.stringify(error));
+              response.status(500).end(JSON.stringify(error));
           }
           
           //ensure any csv vs json conversion done here
