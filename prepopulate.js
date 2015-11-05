@@ -8,5 +8,5 @@ function prepopulateCache(req,res){
 	
 	var populationStatus = {'status': 'populated'}
 	
-	res.end(JSON.stringify(populationStatus))
+	res.status(201).end(JSON.stringify(populationStatus))
 }
