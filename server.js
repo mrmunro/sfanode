@@ -10,7 +10,8 @@ var app = express()
 
 app.get('/customer_dashboard/report_sales_history',customerDashboard.salesHistory)
 app.get('/customer_dashboard',customerDashboard.getDashboard)
-app.get('/prepopulate', prepopulate.cache)
+app.post('/prepopulate', prepopulate.cache)
+
 
 
 app.listen(9000)

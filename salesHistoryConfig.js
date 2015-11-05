@@ -7,7 +7,7 @@ module.exports = {
 	setupSalesHistory : setupSalesHistory
 }
 
-var salesHistoryTargetOperation = function(client,request,response,parameters,callback) {
+var salesHistoryTargetOperation = function(client,request,response,cache,parameters,callback) {
     
     client.SI_APIGEE_BI_SALES_HIST_DET_I(parameters.inbound, function(err,result) {
         if(err) {
@@ -27,7 +27,7 @@ var salesHistoryTargetOperation = function(client,request,response,parameters,ca
             if (err) console.log(err);
             
             console.log(csv);
-            parameters.cache.put(parameters.territoryKey,csv,600);
+            cache.put(parameters.territoryKey,csv,600);
             parameters.outbound.SALES_DATA.push(csv);
             
             });
@@ -66,18 +66,15 @@ function setupSalesHistory(req) {
       pathToService = defaultServicePath
     }
     
-    var cache = apigee.getCache('SFA2_SalesHistoryCache2',{
-          resource: 'SFA2_SalesCacheHistory',
-          scope: 'global',
-          defaultTtl: 30
-        });
+    
     
     var parameters = {
         'wsdl': 'SI_APIGEE_BI_SALES_HIST_DET_I.wsdl',
         'servicePath': pathToService,
         'fields': fields,
         'targetFields': targetFields,
-        'cache': cache,
+        'cache': {'name': 'SFA2_SalesHistoryCache2', 'resource' : 'SFA2_SalesCacheHistory','scope': 'global',
+          'defaultTtl': 30},
         'cacheKeyPrefix': 'salesHistory',
         'clientOperation': salesHistoryTargetOperation 
     }

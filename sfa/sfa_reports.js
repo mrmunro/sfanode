@@ -45,7 +45,7 @@ var inbound = { 'TERRITORY':{'DT_SALES_OFFICE': '', 'DT_SALES_GROUP': ''}};
 
   
 
-var outbound = {'SALES_DATA':[]};
+
 
 
 var soapClient={};
@@ -76,12 +76,20 @@ function respond(outbound,reply) {
 
 
 function getSalesData(request,response, client, parameters) {
-
+  
+    var outbound = {'SALES_DATA':[]};
    
     console.log('main body');
     
     console.log('mode: ' + apigee.getMode());
-    var cache = parameters.cache
+    
+     var cache = apigee.getCache(parameters.cache.name,{
+          resource: parameters.cache.resource,
+          scope: parameters.cache.global,
+          defaultTtl: parameters.cache.defaultTtl
+        });
+    
+    
         
     var territoryKey = '';
     
@@ -126,7 +134,7 @@ function getSalesData(request,response, client, parameters) {
             else {
               console.log('use back-end target');
               
-              callTarget(client,request,response,parameters,callback)
+              callTarget(client,request,response,cache,parameters,callback)
                  
             }
             

@@ -6,7 +6,7 @@ module.exports = {
 	setupDashboard : setupDashboard
 }
 
-var custDashboardTargetOperation = function(client,request,response,parameters,callback) {
+var custDashboardTargetOperation = function(client,request,response,cache,parameters,callback) {
     
     client.SI_APIGEE_BI_CUSTOMER_DASHBOARD_I(parameters.inbound, function(err,result) {
         if(err) {
@@ -26,7 +26,7 @@ var custDashboardTargetOperation = function(client,request,response,parameters,c
             if (err) console.log(err);
             
             console.log(csv);
-            parameters.cache.put(parameters.territoryKey,csv,600);
+            cache.put(parameters.territoryKey,csv,600);
             parameters.outbound.SALES_DATA.push(csv);
             
             });
@@ -65,18 +65,15 @@ function setupDashboard(req) {
       pathToService = defaultServicePath
     }
     
-    var cache = apigee.getCache('SFA2_CustomerDashboardCache',{
-          resource: 'SFA2_CustomerDashboardHistory',
-          scope: 'global',
-          defaultTtl: 30
-        });
+    
     
     var parameters = {
         'wsdl': 'SI_APIGEE_BI_CUSTOMER_DASHBOARD_I.wsdl',
         'servicePath': pathToService,
         'fields': fields,
         'targetFields': targetFields,
-        'cache': cache,
+        'cache': {'name': 'SFA2_CustomerDashboardCache', 'resource' : 'SFA2_CustomerDashboardHistory','scope': 'global',
+          'defaultTtl': 30},
         'cacheKeyPrefix': 'customerDashboard',
         'clientOperation': custDashboardTargetOperation 
     }
