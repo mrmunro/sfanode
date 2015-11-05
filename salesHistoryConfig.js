@@ -23,7 +23,7 @@ var salesHistoryTargetOperation = function(client,request,response,cache,paramet
         //csv conversion here
         if(request.headers["content-type"]=="text/csv") {
             console.log('csv requested');
-            parameters.json2csv({ data: result.RESPONSE.TERR.SALES_DETAIL, fields: parameters.fields, fieldNames: parameters.targetFields }, function(err, csv) {
+            parameters.json2csv({ data: result.RESPONSE.TERR.SALES_DETAIL, fields: parameters.fields, fieldNames: parameters.targetFields, quotes: '', defaultValue: '' }, function(err, csv) {
             if (err) console.log(err);
             
             console.log(csv);
